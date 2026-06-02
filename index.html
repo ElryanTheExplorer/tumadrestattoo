@@ -1573,6 +1573,7 @@ const ASCII = `
 
 const asciiEl = document.getElementById('ascii-art');
 const asciiContainer = document.getElementById('ascii-container');
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 const loaderLogoWrap = document.getElementById('loader-logo-wrap');
 const loaderText = document.getElementById('loader-text');
 const loader = document.getElementById('loader');
@@ -1621,6 +1622,7 @@ function enterSite() {
   loader.style.pointerEvents = 'none';
   loader.classList.add('hidden');
   // Show site - force display before opacity transition
+  window.scrollTo(0, 0);
   site.style.display = 'block';
   site.classList.add('visible');
   requestAnimationFrame(function() {
