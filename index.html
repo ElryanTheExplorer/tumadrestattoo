@@ -983,12 +983,14 @@ p.body-text{font-size:0.95rem;color:var(--muted);line-height:1.9;margin-bottom:0
 }
 .consult-btn:hover{background:var(--ember);}
 .btn-secondary{
-  display:inline-block;padding:0.75rem 1.75rem;
-  border:1px solid rgba(var(--rust-rgb),0.45);color:var(--muted);text-decoration:none;
-  font-family:'Courier New',monospace;font-size:0.68rem;letter-spacing:0.18em;
-  text-transform:uppercase;transition:all 0.2s;
+  font-family:'Courier New',monospace;font-size:0.68rem;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--void);background:#ffffff;border:none;
+  padding:0.85rem 2.2rem;cursor:crosshair;text-decoration:none;
+  clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);
+  transition:all 0.2s;display:inline-block;
 }
-.btn-secondary:hover{border-color:var(--rust);color:var(--rust);}
+.btn-secondary:hover{background:var(--cream);transform:translateY(-2px);}
 
 /* AWARD BADGE */
 .award-strip{padding:2.5rem 2rem;text-align:center;background:var(--deep);border-top:1px solid var(--dim);border-bottom:1px solid var(--dim);}
