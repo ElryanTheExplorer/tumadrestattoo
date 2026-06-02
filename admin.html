@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin — Tu Madre's Tattoo</title>
+<script>
+(function(){try{var s=document.createElement('script');s.src='theme-config.js';s.onerror=function(){};document.head.appendChild(s);}catch(e){}})();
+</script>
+<style>
+/* ═══ PALETTE SYSTEM (CSS fallback — theme-config.js overrides on load) ═══ */
+:root, [data-theme="dark"] {
+  --void:#070504;--deep:#0e0b07;--surface:#162127;
+  --rust:#3bacc4;--ember:#5cc8de;--teal:#3bacc4;--teal-mid:#30716b;
+  --gold:#dec383;--gold-mid:#8e6c2f;--jagua:#4a2511;--bronze:#684b24;
+  --bone:#e8dcc8;--cream:#f0e8d8;
+  --muted:rgba(232,220,200,0.72);--dim:rgba(232,220,200,0.2);
+  --accent:#3bacc4;--accent2:#dec383;
+  --rust-rgb:59,172,196;--teal-rgb:59,172,196;--gold-rgb:222,195,131;--bone-rgb:232,220,200;
+}
+[data-theme="teal"] {
+  --void:#050c0e;--deep:#0a1518;--surface:#122028;
+  --rust:#8e6c2f;--ember:#dec383;--teal:#3bacc4;--teal-mid:#30716b;
+  --gold:#dec383;--gold-mid:#8e6c2f;--jagua:#4a2511;--bronze:#684b24;
+  --bone:#cce8ed;--cream:#e0f4f7;
+  --muted:rgba(204,232,237,0.72);--dim:rgba(204,232,237,0.18);
+  --accent:#3bacc4;--accent2:#dec383;
+  --rust-rgb:142,108,47;--teal-rgb:59,172,196;--gold-rgb:222,195,131;--bone-rgb:204,232,237;
+}
+[data-theme="gold"] {
+  --void:#0b0804;--deep:#140f08;--surface:#1e160a;
+  --rust:#3bacc4;--ember:#30716b;--teal:#3bacc4;--teal-mid:#30716b;
+  --gold:#dec383;--gold-mid:#8e6c2f;--jagua:#4a2511;--bronze:#684b24;
+  --bone:#ede0c4;--cream:#f5edda;
+  --muted:rgba(237,224,196,0.72);--dim:rgba(237,224,196,0.18);
+  --accent:#dec383;--accent2:#3bacc4;
+  --rust-rgb:59,172,196;--teal-rgb:59,172,196;--gold-rgb:222,195,131;--bone-rgb:237,224,196;
+}
+[data-theme="light"] {
+  --void:#f2e8d6;--deep:#e8dcc4;--surface:#ddd0b2;
+  --rust:#2a6b65;--ember:#1e4f4a;--teal:#2a6b65;--teal-mid:#1e4f4a;
+  --gold:#7a5a22;--gold-mid:#5c4218;--jagua:#3a1c0a;--bronze:#4e3018;
+  --bone:#1a0e06;--cream:#0e0804;
+  --muted:rgba(26,14,6,0.72);--dim:rgba(26,14,6,0.25);
+  --accent:#2a6b65;--accent2:#7a5a22;
+  --rust-rgb:42,107,101;--teal-rgb:42,107,101;--gold-rgb:122,90,34;--bone-rgb:26,14,6;
+}
+
+/* ═══ RESET & BASE ═══ */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{background:var(--void);color:var(--bone);font-family:'Courier New',monospace;font-size:15px;}
+body{min-height:100vh;background:var(--void);}
+a{color:var(--rust);text-decoration:none;}
+
+/* ═══ LAYOUT ═══ */
+.admin{display:flex;flex-direction:column;min-height:100vh;}
+
+/* ═══ HEADER ═══ */
+.admin-header{
+  background:var(--surface);border-bottom:1px solid var(--dim);
+  padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+}
+.admin-brand{font-size:1rem;font-weight:900;color:var(--gold);letter-spacing:.06em;}
+.admin-sub{font-size:.6rem;color:var(--muted);letter-spacing:.15em;}
+.admin-nav{display:flex;gap:.75rem;}
+.admin-nav a{
+  font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.4rem .75rem;border:1px solid var(--dim);color:var(--muted);
+  transition:all .15s;
+}
+.admin-nav a:hover{border-color:var(--rust);color:var(--rust);}
+
+/* ═══ TABS ═══ */
+.tab-bar{
+  display:flex;background:var(--deep);border-bottom:1px solid var(--dim);
+  padding:0 1rem;gap:0;
+}
+.tab-btn{
+  padding:.7rem 1.25rem;font-family:inherit;font-size:.65rem;
+  letter-spacing:.1em;text-transform:uppercase;
+  background:transparent;border:none;border-bottom:2px solid transparent;
+  color:var(--muted);cursor:pointer;transition:all .15s;
+}
+.tab-btn.active{color:var(--bone);border-bottom-color:var(--rust);}
+.tab-btn:hover{color:var(--bone);}
+.tab-panel{display:none;flex:1;overflow-y:auto;}
+.tab-panel.active{display:block;}
+
+/* ═══ PALETTE EDITOR ═══ */
+.palette-wrap{padding:1.5rem;max-width:700px;margin:0 auto;width:100%;}
+.palette-section{margin-bottom:1.5rem;}
+.palette-label{
+  font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;
+  color:var(--rust);margin-bottom:.5rem;padding-bottom:.25rem;
+  border-bottom:1px solid var(--dim);
+}
+.palette-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:1.5rem;}
+.preset-btn{
+  padding:.6rem .4rem;border:1px solid var(--dim);font-family:inherit;
+  font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;text-align:center;transition:all .15s;
+}
+.preset-btn.active{border-color:var(--rust);outline:1px solid var(--rust);outline-offset:-3px;}
+.preset-btn:hover{border-color:var(--rust);}
+.preset-dot{display:block;width:10px;height:10px;border-radius:50%;margin:0 auto 4px;}
+.color-row{
+  display:grid;grid-template-columns:100px 1fr 70px;
+  align-items:center;gap:.5rem;padding:.3rem 0;
+}
+.color-row label{font-size:.65rem;color:var(--muted);letter-spacing:.06em;}
+.color-swatch{
+  width:100%;height:24px;border:1px solid var(--dim);
+  cursor:pointer;padding:0;background:none;-webkit-appearance:none;
+}
+.color-swatch::-webkit-color-swatch-wrapper{padding:0;}
+.color-swatch::-webkit-color-swatch{border:none;}
+.color-hex{
+  background:var(--void);border:1px solid var(--dim);
+  color:var(--bone);font-family:inherit;font-size:.65rem;
+  padding:.25rem .4rem;width:100%;
+}
+.color-hex:focus{outline:none;border-color:var(--rust);}
+
+/* ═══ DEPLOY SECTION ═══ */
+.deploy-strip{
+  padding:1.25rem 1.5rem;background:var(--surface);
+  border-top:1px solid var(--dim);
+  display:flex;gap:1rem;align-items:center;flex-wrap:wrap;
+  position:sticky;bottom:0;z-index:40;
+}
+.deploy-btn{
+  padding:.6rem 1.5rem;font-family:inherit;font-size:.65rem;
+  letter-spacing:.12em;text-transform:uppercase;font-weight:700;
+  border:none;cursor:pointer;transition:all .15s;
+}
+.deploy-primary{background:var(--rust);color:var(--void);}
+.deploy-primary:hover{background:var(--ember);}
+.deploy-secondary{background:var(--surface);color:var(--bone);border:1px solid var(--dim);}
+.deploy-secondary:hover{border-color:var(--rust);color:var(--rust);}
+.deploy-status{font-size:.6rem;color:var(--muted);letter-spacing:.06em;}
+
+/* ═══ PREVIEW STRIP ═══ */
+.preview-strip{
+  padding:1rem 1.5rem;background:var(--deep);
+  border-top:1px solid var(--dim);
+}
+.preview-label{font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;}
+.preview-blocks{display:flex;gap:.5rem;flex-wrap:wrap;}
+.preview-block{
+  width:48px;height:32px;border:1px solid var(--dim);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.5rem;color:var(--bone);letter-spacing:.05em;
+}
+
+/* ═══ TODO SECTION (from todo.html) ═══ */
+.todo-wrap{padding:1rem;max-width:800px;margin:0 auto;width:100%;}
+
+/* Phase tabs */
+.phase-tabs{display:flex;gap:.35rem;overflow-x:auto;padding:.75rem 0;scrollbar-width:none;}
+.phase-tabs::-webkit-scrollbar{display:none;}
+.phase-tab{
+  flex-shrink:0;background:var(--surface);border:1px solid var(--dim);
+  color:var(--muted);font-family:inherit;font-size:.6rem;
+  letter-spacing:.06em;padding:.5rem .85rem;cursor:pointer;
+  transition:all .15s;white-space:nowrap;display:flex;flex-direction:column;gap:2px;
+}
+.phase-tab.active{border-color:var(--phase-color,var(--gold));color:var(--bone);}
+.phase-tab-label{font-size:.5rem;letter-spacing:.1em;color:var(--phase-color,var(--gold));}
+.phase-tab-status{font-size:.48rem;padding:1px 5px;border-radius:8px;font-weight:700;letter-spacing:.08em;}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:.75rem;}
+.stat-pill{
+  background:var(--surface);border:1px solid var(--dim);
+  padding:.4rem .6rem;display:flex;align-items:center;gap:.5rem;justify-content:center;
+}
+.stat-val{font-size:1rem;font-weight:900;line-height:1;}
+.stat-lbl{font-size:.55rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+
+/* Phase header */
+.phase-hdr{
+  background:var(--surface);border:1px solid var(--dim);
+  padding:1rem;margin-bottom:1rem;
+}
+.phase-hdr-top{display:flex;align-items:flex-start;gap:.75rem;justify-content:space-between;}
+.phase-meta{flex:1;}
+.phase-status-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;flex-wrap:wrap;}
+.phase-badge{font-size:.55rem;padding:2px 8px;border-radius:10px;font-weight:700;letter-spacing:.12em;}
+.phase-timeline{font-size:.65rem;color:var(--muted);}
+.phase-lbl{font-size:.6rem;letter-spacing:.1em;margin-bottom:.1rem;}
+.phase-title{font-size:1.15rem;font-weight:900;letter-spacing:.02em;}
+.phase-count{background:var(--surface);border:1px solid var(--dim);padding:.5rem .7rem;text-align:center;flex-shrink:0;}
+.phase-count-num{font-size:1.2rem;font-weight:900;line-height:1;}
+.phase-count-word{font-size:.5rem;color:var(--muted);letter-spacing:.1em;}
+.phase-note{margin-top:.75rem;padding:.6rem .8rem;font-size:.72rem;color:var(--muted);line-height:1.6;border-left:3px solid var(--phase-color);}
+.progress-wrap{margin-top:.5rem;}
+.progress-lbl{font-size:.55rem;color:var(--muted);letter-spacing:.08em;margin-bottom:.2rem;display:flex;justify-content:space-between;}
+.progress-track{height:3px;background:var(--dim);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:2px;transition:width .4s ease;}
+
+/* Sections & Tasks */
+.sec{margin-bottom:.75rem;}
+.sec-hdr{
+  display:flex;align-items:center;gap:.5rem;
+  padding:.55rem .75rem;cursor:pointer;
+  background:var(--surface);border:1px solid var(--dim);
+  margin-bottom:.2rem;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.sec-icon{font-size:.8rem;flex-shrink:0;}
+.sec-label{font-size:.68rem;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase;flex:1;}
+.sec-count{font-size:.6rem;color:var(--muted);}
+.sec-chevron{font-size:.6rem;color:var(--muted);flex-shrink:0;}
+.sec-body{padding:.15rem 0;}
+.sec-note{padding:.5rem .75rem;margin-bottom:.3rem;background:rgba(var(--gold-rgb),0.03);border:1px solid rgba(var(--gold-rgb),0.13);font-size:.68rem;color:var(--muted);line-height:1.6;}
+.task{
+  display:flex;align-items:flex-start;gap:.5rem;
+  padding:.55rem .65rem;cursor:pointer;
+  transition:background .12s;margin-bottom:1px;min-height:44px;
+  -webkit-tap-highlight-color:transparent;
+}
+.task:hover{background:rgba(255,255,255,0.02);}
+.task.done{background:rgba(255,255,255,0.02);}
+.task-cb{
+  width:20px;height:20px;border-radius:3px;flex-shrink:0;margin-top:1px;
+  border:1.5px solid var(--dim);background:transparent;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.task-cb.checked{background:var(--phase-color);border-color:var(--phase-color);}
+.task-cb-mark{color:var(--void);font-size:.6rem;font-weight:900;line-height:1;display:none;}
+.task-cb.checked .task-cb-mark{display:block;}
+.task-body{flex:1;min-width:0;}
+.task-text{font-size:.78rem;color:var(--bone);line-height:1.5;word-break:break-word;}
+.task-text.struck{color:var(--muted);text-decoration:line-through;}
+.task-tag{display:inline-block;margin-left:.35rem;font-size:.55rem;padding:1px 5px;border-radius:8px;vertical-align:middle;}
+.tag-assets{background:rgba(var(--gold-rgb),0.13);color:var(--gold);border:1px solid rgba(var(--gold-rgb),0.25);}
+.tag-hw{background:rgba(59,172,196,0.13);color:var(--rust);border:1px solid rgba(59,172,196,0.25);}
+.task-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;opacity:.85;}
+
+/* Callout */
+.callout{margin-top:.75rem;padding:.85rem 1rem;border-radius:2px;}
+.callout-label{font-size:.6rem;font-weight:700;letter-spacing:.1em;margin-bottom:.4rem;}
+.callout-body{font-size:.72rem;color:var(--muted);line-height:1.7;}
+.callout-note{margin-top:.5rem;font-size:.65rem;color:var(--dim);line-height:1.5;}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:.65rem;padding:.6rem 0;margin-top:.5rem;border-top:1px solid var(--dim);}
+.legend-label{font-size:.55rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;width:100%;}
+.legend-item{display:flex;align-items:center;gap:.3rem;}
+.legend-dot{width:7px;height:7px;border-radius:50%;}
+.legend-text{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+
+@media(max-width:600px){
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .color-row{grid-template-columns:80px 1fr 60px;}
+}
+</style>
+</head>
+<body>
+
+<div class="admin">
+
+<!-- HEADER -->
+<div class="admin-header">
+  <div>
+    <div class="admin-brand">TUMADRE ADMIN</div>
+    <div class="admin-sub">Site Management Dashboard</div>
+  </div>
+  <div class="admin-nav">
+    <a href="index.html">View Site</a>
+    <a href="inking.html">Inking Guide</a>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="palette">◈ Palette</button>
+  <button class="tab-btn" data-tab="roadmap">▣ Roadmap</button>
+</div>
+
+<!-- ═══════════ PALETTE TAB ═══════════ -->
+<div class="tab-panel active" id="tab-palette">
+<div class="palette-wrap">
+
+  <div class="palette-section">
+    <div class="palette-label">Presets</div>
+    <div class="palette-presets" id="presets"></div>
+  </div>
+
+  <div class="palette-section">
+    <div class="palette-label">Background</div>
+    <div class="color-row"><label>Void (darkest)</label><input class="color-swatch" type="color" data-var="--void"><input class="color-hex" type="text" data-var="--void" maxlength="7"></div>
+    <div class="color-row"><label>Deep</label><input class="color-swatch" type="color" data-var="--deep"><input class="color-hex" type="text" data-var="--deep" maxlength="7"></div>
+    <div class="color-row"><label>Surface</label><input class="color-swatch" type="color" data-var="--surface"><input class="color-hex" type="text" data-var="--surface" maxlength="7"></div>
+  </div>
+
+  <div class="palette-section">
+    <div class="palette-label">Accents</div>
+    <div class="color-row"><label>Primary</label><input class="color-swatch" type="color" data-var="--rust"><input class="color-hex" type="text" data-var="--rust" maxlength="7"></div>
+    <div class="color-row"><label>Hover</label><input class="color-swatch" type="color" data-var="--ember"><input class="color-hex" type="text" data-var="--ember" maxlength="7"></div>
+    <div class="color-row"><label>Teal</label><input class="color-swatch" type="color" data-var="--teal"><input class="color-hex" type="text" data-var="--teal" maxlength="7"></div>
+    <div class="color-row"><label>Teal Mid</label><input class="color-swatch" type="color" data-var="--teal-mid"><input class="color-hex" type="text" data-var="--teal-mid" maxlength="7"></div>
+  </div>
+
+  <div class="palette-section">
+    <div class="palette-label">Highlights</div>
+    <div class="color-row"><label>Gold</label><input class="color-swatch" type="color" data-var="--gold"><input class="color-hex" type="text" data-var="--gold" maxlength="7"></div>
+    <div class="color-row"><label>Gold Mid</label><input class="color-swatch" type="color" data-var="--gold-mid"><input class="color-hex" type="text" data-var="--gold-mid" maxlength="7"></div>
+    <div class="color-row"><label>Jagua</label><input class="color-swatch" type="color" data-var="--jagua"><input class="color-hex" type="text" data-var="--jagua" maxlength="7"></div>
+  </div>
+
+  <div class="palette-section">
+    <div class="palette-label">Text</div>
+    <div class="color-row"><label>Bone</label><input class="color-swatch" type="color" data-var="--bone"><input class="color-hex" type="text" data-var="--bone" maxlength="7"></div>
+    <div class="color-row"><label>Cream</label><input class="color-swatch" type="color" data-var="--cream"><input class="color-hex" type="text" data-var="--cream" maxlength="7"></div>
+  </div>
+
+  <!-- LIVE PREVIEW -->
+  <div class="preview-strip">
+    <div class="preview-label">Live Preview</div>
+    <div class="preview-blocks" id="preview-blocks"></div>
+  </div>
+</div>
+
+<!-- DEPLOY -->
+<div class="deploy-strip">
+  <button class="deploy-btn deploy-primary" id="deploy-btn">⬇ Download theme-config.js</button>
+  <button class="deploy-btn deploy-secondary" id="reset-btn">↺ Reset to Preset</button>
+  <span class="deploy-status" id="deploy-status"></span>
+</div>
+</div>
+
+<!-- ═══════════ ROADMAP TAB ═══════════ -->
+<div class="tab-panel" id="tab-roadmap">
+<div class="todo-wrap">
+  <div class="stats-row" id="stats-row"></div>
+  <div class="phase-tabs" id="phase-tabs"></div>
+  <div id="todo-main"></div>
+  <div class="legend">
+    <div class="legend-label">Priority</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#B03A2E"></div><span class="legend-text">Critical</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#C8A951"></div><span class="legend-text">High</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#7C9BB5"></div><span class="legend-text">Medium</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#6B5F4E"></div><span class="legend-text">Low</span></div>
+  </div>
+</div>
+</div>
+
+</div><!-- /.admin -->
+
+<script>
+// ═══════════════════════════════════════════
+//  PRESETS
+// ═══════════════════════════════════════════
+const PRESETS = {
+  dark:{label:'Dark',surface:'#162127',accent:'#3bacc4',vars:{"--void":"#070504","--deep":"#0e0b07","--surface":"#162127","--rust":"#3bacc4","--ember":"#5cc8de","--teal":"#3bacc4","--teal-mid":"#30716b","--gold":"#dec383","--gold-mid":"#8e6c2f","--jagua":"#4a2511","--bronze":"#684b24","--bone":"#e8dcc8","--cream":"#f0e8d8","--muted":"rgba(232,220,200,0.72)","--dim":"rgba(232,220,200,0.2)","--accent":"#3bacc4","--accent2":"#dec383","--rust-rgb":"59,172,196","--teal-rgb":"59,172,196","--gold-rgb":"222,195,131","--bone-rgb":"232,220,200"}},
+  teal:{label:'Teal',surface:'#122028',accent:'#3bacc4',vars:{"--void":"#050c0e","--deep":"#0a1518","--surface":"#122028","--rust":"#8e6c2f","--ember":"#dec383","--teal":"#3bacc4","--teal-mid":"#30716b","--gold":"#dec383","--gold-mid":"#8e6c2f","--jagua":"#4a2511","--bronze":"#684b24","--bone":"#cce8ed","--cream":"#e0f4f7","--muted":"rgba(204,232,237,0.72)","--dim":"rgba(204,232,237,0.18)","--accent":"#3bacc4","--accent2":"#dec383","--rust-rgb":"142,108,47","--teal-rgb":"59,172,196","--gold-rgb":"222,195,131","--bone-rgb":"204,232,237"}},
+  gold:{label:'Gold',surface:'#1e160a',accent:'#dec383',vars:{"--void":"#0b0804","--deep":"#140f08","--surface":"#1e160a","--rust":"#3bacc4","--ember":"#30716b","--teal":"#3bacc4","--teal-mid":"#30716b","--gold":"#dec383","--gold-mid":"#8e6c2f","--jagua":"#4a2511","--bronze":"#684b24","--bone":"#ede0c4","--cream":"#f5edda","--muted":"rgba(237,224,196,0.72)","--dim":"rgba(237,224,196,0.18)","--accent":"#dec383","--accent2":"#3bacc4","--rust-rgb":"59,172,196","--teal-rgb":"59,172,196","--gold-rgb":"222,195,131","--bone-rgb":"237,224,196"}},
+  light:{label:'Light',surface:'#ddd0b2',accent:'#2a6b65',vars:{"--void":"#f2e8d6","--deep":"#e8dcc4","--surface":"#ddd0b2","--rust":"#2a6b65","--ember":"#1e4f4a","--teal":"#2a6b65","--teal-mid":"#1e4f4a","--gold":"#7a5a22","--gold-mid":"#5c4218","--jagua":"#3a1c0a","--bronze":"#4e3018","--bone":"#1a0e06","--cream":"#0e0804","--muted":"rgba(26,14,6,0.72)","--dim":"rgba(26,14,6,0.25)","--accent":"#2a6b65","--accent2":"#7a5a22","--rust-rgb":"42,107,101","--teal-rgb":"42,107,101","--gold-rgb":"122,90,34","--bone-rgb":"26,14,6"}}
+};
+
+const HEX_VARS = ['--void','--deep','--surface','--rust','--ember','--teal','--teal-mid','--gold','--gold-mid','--jagua','--bronze','--bone','--cream'];
+const RGB_MAP = {'--rust':'--rust-rgb','--teal':'--teal-rgb','--gold':'--gold-rgb','--bone':'--bone-rgb'};
+const root = document.documentElement;
+let currentPreset = 'dark';
+
+function hexToRgb(hex){const h=hex.replace('#','');return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)].join(',');}
+
+function getVar(v){return getComputedStyle(root).getPropertyValue(v).trim();}
+
+function setVar(v,hex){
+  if(!/^#[0-9a-fA-F]{6}$/.test(hex))return;
+  root.style.setProperty(v,hex);
+  if(RGB_MAP[v])root.style.setProperty(RGB_MAP[v],hexToRgb(hex));
+  syncInputs(v,hex);
+  updatePreview();
+}
+
+function syncInputs(v,hex){
+  document.querySelectorAll(`.color-swatch[data-var="${v}"]`).forEach(el=>{if(/^#[0-9a-fA-F]{6}$/.test(hex))el.value=hex;});
+  document.querySelectorAll(`.color-hex[data-var="${v}"]`).forEach(el=>el.value=hex);
+}
+
+function syncAllInputs(){
+  HEX_VARS.forEach(v=>{const val=getVar(v);syncInputs(v,val);});
+}
+
+function applyPreset(name){
+  const p=PRESETS[name];if(!p)return;
+  root.setAttribute('data-theme',name);
+  // Clear inline overrides so CSS [data-theme] takes over
+  HEX_VARS.forEach(v=>root.style.removeProperty(v));
+  ['--muted','--dim','--accent','--accent2','--rust-rgb','--teal-rgb','--gold-rgb','--bone-rgb','--bronze'].forEach(v=>root.style.removeProperty(v));
+  currentPreset=name;
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.toggle('active',b.dataset.preset===name));
+  setTimeout(syncAllInputs,50);
+  updatePreview();
+}
+
+function updatePreview(){
+  const vars=['--void','--deep','--surface','--rust','--teal','--gold','--bone'];
+  const labels=['void','deep','surf','rust','teal','gold','bone'];
+  const el=document.getElementById('preview-blocks');
+  el.innerHTML=vars.map((v,i)=>`<div class="preview-block" style="background:${getVar(v)}">${labels[i]}</div>`).join('');
+}
+
+function buildPresets(){
+  const el=document.getElementById('presets');
+  el.innerHTML=Object.entries(PRESETS).map(([k,p])=>`<button class="preset-btn${k===currentPreset?' active':''}" data-preset="${k}" style="background:${p.surface};color:${k==='light'?'#1a0e06':'#e8dcc8'}"><span class="preset-dot" style="background:${p.accent}"></span>${p.label}</button>`).join('');
+  el.querySelectorAll('.preset-btn').forEach(b=>b.addEventListener('click',()=>applyPreset(b.dataset.preset)));
+}
+
+function generateThemeConfig(){
+  // Determine which vars differ from the current preset (= custom overrides)
+  const preset = PRESETS[currentPreset];
+  const overrides = {};
+  HEX_VARS.forEach(v=>{
+    const current = getVar(v);
+    const base = preset.vars[v] || '';
+    if(current && current !== base) overrides[v] = current;
+  });
+  // Also check computed rgb/muted/dim
+  ['--rust-rgb','--teal-rgb','--gold-rgb','--bone-rgb'].forEach(v=>{
+    const current = getVar(v);
+    const base = preset.vars[v] || '';
+    if(current && current !== base) overrides[v] = current;
+  });
+
+  const lines = [
+    '/* Tu Madre\'s Tattoo — Theme Config',
+    '   Generated from admin.html · Replace this file to update site-wide palette. */',
+    '(function(){',
+    `  var theme = "${currentPreset}";`,
+    `  var overrides = ${JSON.stringify(overrides)};`,
+    '  var r = document.documentElement;',
+    '  r.setAttribute("data-theme", theme);',
+    '  for (var k in overrides) r.style.setProperty(k, overrides[k]);',
+    '})();'
+  ];
+
+  // Recompute muted/dim if bone-rgb changed
+  if(overrides['--bone-rgb']){
+    const rgb = overrides['--bone-rgb'];
+    lines.splice(lines.length-1, 0,
+      `  r.style.setProperty("--muted","rgba(${rgb},0.72)");`,
+      `  r.style.setProperty("--dim","rgba(${rgb},0.2)");`
+    );
+  }
+
+  return lines.join('\n');
+}
+
+function deployTheme(){
+  const content = generateThemeConfig();
+  const blob = new Blob([content],{type:'application/javascript'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'theme-config.js';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  document.getElementById('deploy-status').textContent = '✓ Downloaded — upload to site root to deploy';
+  setTimeout(()=>document.getElementById('deploy-status').textContent='',5000);
+}
+
+// ── Init palette ──
+buildPresets();
+syncAllInputs();
+updatePreview();
+
+document.querySelectorAll('.color-swatch').forEach(sw=>sw.addEventListener('input',()=>setVar(sw.dataset.var,sw.value)));
+document.querySelectorAll('.color-hex').forEach(hx=>{
+  const trySet=()=>{const v=hx.value.trim();if(/^#[0-9a-fA-F]{6}$/.test(v))setVar(hx.dataset.var,v);};
+  hx.addEventListener('input',trySet);hx.addEventListener('change',trySet);
+});
+document.getElementById('deploy-btn').addEventListener('click',deployTheme);
+document.getElementById('reset-btn').addEventListener('click',()=>applyPreset(currentPreset));
+
+// ═══════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ═══════════════════════════════════════════
+//  TODO / ROADMAP
+// ═══════════════════════════════════════════
+const PRIORITY_COLORS={critical:'#B03A2E',high:'#C8A951',medium:'#7C9BB5',low:'#6B5F4E'};
+const STATUS={now:{label:'DO NOW',bg:'#C8A951',text:'#0E0C0A'},next:{label:'UP NEXT',bg:'#7C9BB5',text:'#0E0C0A'},planned:{label:'PLANNED',bg:'#9B7BC8',text:'#fff'},vision:{label:'VISION',bg:'#B03A2E',text:'#fff'}};
+
+const phases=[
+{id:'p0',phase:'Phase 0',title:'Foundation',timeline:'Weeks 1–2',status:'now',color:'#C8A951',sections:[{label:'Domain Acquisition',icon:'◈',tasks:[{text:'Register tumadretattoo.com (primary)',priority:'critical'},{text:'Register tumadrestattoo.com (typo variant)',priority:'critical'},{text:'Register tumadretatoo.com (single-t variant)',priority:'high'},{text:'Register tumadretattoos.com (plural)',priority:'high'},{text:'Register tumadretattoo.ink',priority:'high'},{text:'Register tu-madre-tattoo.com (hyphenated)',priority:'medium'},{text:'Register tumadretattoo.co',priority:'medium'},{text:'Set all domains to auto-renew at Cloudflare Registrar',priority:'high'},{text:'Point all variants → 301 redirect to primary .com',priority:'high'}]},{label:'Brand Assets (BLOCKING)',icon:'✦',tasks:[{text:'Deliver primary logo (SVG + PNG, light + dark)',priority:'critical',tag:'needs assets'},{text:'Deliver wordmark / logotype',priority:'critical',tag:'needs assets'},{text:'Deliver brand color palette (hex values)',priority:'critical',tag:'needs assets'},{text:'Deliver brand font selections',priority:'high',tag:'needs assets'},{text:'Deliver 5–10 hero/portfolio photos',priority:'high',tag:'needs assets'},{text:'Deliver artist headshots / bio copy',priority:'medium',tag:'needs assets'}]},{label:'Press Kit',icon:'⬡',note:'A press kit lives at tumadretattoo.com/press and is available for download as a ZIP.',tasks:[{text:'Logo package (all variants, all formats)',priority:'high'},{text:'Brand one-pager: founding story, mission, artists',priority:'high'},{text:'High-res photo gallery',priority:'high'},{text:'Approved boilerplate description',priority:'high'},{text:'Contact info for press inquiries',priority:'medium'},{text:'Social handles and verified links',priority:'medium'},{text:'ZIP bundle auto-generated on /press page',priority:'medium'}]}],callout:{color:'#C8A951',label:'✦ PRESS KIT NOTE',body:'A press kit is one of the highest-leverage things a brand can do early. Send logos in SVG/PNG, a few sentences about the founding story, and 5–10 high-res photos. From that we build a polished downloadable kit.'}},
+{id:'p1',phase:'Phase 1',title:'Core Site — Tumadre Tattoo',timeline:'Weeks 3–6',status:'next',color:'#7C9BB5',sections:[{label:'Site Architecture',icon:'◈',tasks:[{text:'Tech stack decision: Next.js 14 + Tailwind + Vercel',priority:'high'},{text:'Set up repo + CI/CD pipeline',priority:'high'},{text:'Configure custom domain + SSL',priority:'high'},{text:'Set up staging environment',priority:'medium'}]},{label:'Pages',icon:'▣',tasks:[{text:'/ Home — hero, featured artists, booking CTA',priority:'critical'},{text:'/artists — individual profiles + portfolios',priority:'critical'},{text:'/gallery — filterable portfolio grid',priority:'critical'},{text:'/booking — booking flow or embed',priority:'critical'},{text:'/about — story, studio culture, location',priority:'high'},{text:'/care — aftercare instructions',priority:'medium'},{text:'/press — press kit download page',priority:'medium'},{text:'/shop — placeholder or merch embed',priority:'low'}]},{label:'SEO & Analytics',icon:'⌕',tasks:[{text:'Google Search Console + sitemap',priority:'high'},{text:'Structured data markup (LocalBusiness)',priority:'high'},{text:'GA4 + Plausible',priority:'medium'},{text:'Google Business Profile optimization',priority:'high'},{text:'Yelp + Apple Maps claim',priority:'medium'}]}]},
+{id:'p2',phase:'Phase 2',title:'The Ink Network',timeline:'Months 2–4',status:'planned',color:'#9B7BC8',note:'Discovery and booking network for independent tattoo artists.',sections:[{label:'Network Architecture',icon:'◈',tasks:[{text:'Spin up tumadretattoo.ink as network hub',priority:'high'},{text:'Artist profile system: onboarding, portfolio, bio',priority:'high'},{text:'Shared booking infrastructure',priority:'high'},{text:'Subdomain routing per artist',priority:'medium'},{text:'Semantic artist tagging',priority:'medium'},{text:'Search + filter: style, location, availability',priority:'high'}]},{label:'ARX Namespace',icon:'⛓',tasks:[{text:'Register tumadretattoo.arx on Namebase',priority:'high'},{text:'Register tumadre.arx short-form',priority:'medium'},{text:'Publish arx-context.jsonld',priority:'medium'},{text:'Configure HNS resolver',priority:'medium'}]},{label:'Press Kit — Network Edition',icon:'⬡',tasks:[{text:'Ink Network brand identity',priority:'high',tag:'needs assets'},{text:'Network pitch deck',priority:'medium'},{text:'Artist onboarding guide',priority:'high'},{text:'Media kit for network press',priority:'medium'}]}]},
+{id:'p3',phase:'Phase 3',title:'AR Tattoo Previewer — InkScan',timeline:'Months 4–9',status:'vision',color:'#B03A2E',note:'AR placement tool. LiDAR-grade body mesh accuracy on iPhone 12 Pro+.',sections:[{label:'MVP (iOS LiDAR-first)',icon:'◈',tasks:[{text:'iOS app — LiDAR body scan → ARKit mesh',priority:'critical'},{text:'Tattoo design overlay with perspective-correct rendering',priority:'critical'},{text:'Skin tone adaptation layer',priority:'high'},{text:'Body part detection',priority:'high'},{text:'Design library: upload SVG/PNG or browse catalog',priority:'high'},{text:'Save + share preview',priority:'high'},{text:'Booking handoff → Book with [Artist]',priority:'high'}]},{label:'Android / Web Fallback',icon:'▣',tasks:[{text:'MediaPipe body pose for non-LiDAR',priority:'medium'},{text:'2D perspective warp overlay',priority:'medium'},{text:'Web version (WebXR + TensorFlow.js)',priority:'medium'},{text:'Progressive enhancement: detect LiDAR',priority:'high'}]},{label:'Artist Integration',icon:'✦',tasks:[{text:'Artist design upload portal',priority:'high'},{text:'Client session sharing',priority:'high'},{text:'Placement consultation flow',priority:'medium'},{text:'Design versioning',priority:'medium'}]},{label:'Technical Infra',icon:'⚙',tasks:[{text:'Get an iPhone 12 Pro+ for dev 🤡',priority:'critical',tag:'hardware'},{text:'Evaluate: RealityKit vs Unity vs Metal',priority:'high'},{text:'3D mesh processing backend',priority:'high'},{text:'Privacy: on-device scan processing',priority:'critical'},{text:'Open-source core under ARX Foundation',priority:'medium'}]}],callout:{color:'#B03A2E',label:'✦ COLLABORATION NOTE',body:'InkScan is a genuine product opportunity. ARX Foundation is a natural home for the open-source core. The booking handoff is the business model moat.'}},
+{id:'p4',phase:'Phase 4',title:'Merch, Shop & Revenue',timeline:'Months 6–12',status:'planned',color:'#6BA58E',sections:[{label:'Commerce',icon:'◈',tasks:[{text:'tumadretattoo.shop domain live',priority:'medium'},{text:'Shopify or Medusa.js storefront',priority:'medium'},{text:'Flash sheet prints, apparel, aftercare',priority:'medium'},{text:'Digital design marketplace',priority:'high'},{text:'Gift card / deposit system',priority:'medium'}]},{label:'Network Monetization',icon:'⬡',tasks:[{text:'Artist revenue share model',priority:'high'},{text:'Featured placement (non-algorithmic, opt-in)',priority:'medium'},{text:'InkScan premium tier',priority:'medium'},{text:'API access for third-party studios',priority:'low'}]}]}
+];
+
+// ── State ──
+const TODO_KEY='tumadre_roadmap_done';
+function loadDone(){try{return JSON.parse(localStorage.getItem(TODO_KEY)||'{}');}catch{return{};}}
+function saveDone(d){localStorage.setItem(TODO_KEY,JSON.stringify(d));}
+function taskKey(pid,si,ti){return`${pid}_s${si}_t${ti}`;}
+let doneState=loadDone();
+let activePhase='p0';
+let collapsed={};
+
+function allTasks(){return phases.flatMap(p=>p.sections.flatMap(s=>s.tasks));}
+
+function renderStats(){
+  const all=allTasks();const totalDone=Object.values(doneState).filter(Boolean).length;
+  const critical=all.filter(t=>t.priority==='critical').length;
+  const assets=all.filter(t=>t.tag==='needs assets').length;
+  const stats=[{label:'Total',val:all.length,color:'var(--bone)'},{label:'Done',val:totalDone,color:'#6BA58E'},{label:'Critical',val:critical,color:'#B03A2E'},{label:'Assets',val:assets,color:'var(--gold)'}];
+  document.getElementById('stats-row').innerHTML=stats.map(s=>`<div class="stat-pill"><div class="stat-val" style="color:${s.color}">${s.val}</div><div class="stat-lbl">${s.label}</div></div>`).join('');
+}
+
+function renderTabs(){
+  document.getElementById('phase-tabs').innerHTML=phases.map(p=>{
+    const sl=STATUS[p.status];const total=p.sections.flatMap(s=>s.tasks).length;
+    const done=p.sections.flatMap((s,si)=>s.tasks.filter((_,ti)=>doneState[taskKey(p.id,si,ti)])).length;
+    return`<button class="phase-tab${p.id===activePhase?' active':''}" style="--phase-color:${p.color}" onclick="selectPhase('${p.id}')"><span class="phase-tab-status" style="background:${sl.bg};color:${sl.text}">${sl.label}</span><span class="phase-tab-label">${p.phase}</span><span style="font-size:.6rem;color:var(--bone)">${p.title}</span><span style="font-size:.5rem;color:var(--muted)">${done}/${total}</span></button>`;
+  }).join('');
+}
+
+function renderPhase(){
+  const p=phases.find(ph=>ph.id===activePhase);if(!p)return;
+  const sl=STATUS[p.status];
+  const total=p.sections.flatMap(s=>s.tasks).length;
+  const done=p.sections.flatMap((s,si)=>s.tasks.filter((_,ti)=>doneState[taskKey(p.id,si,ti)])).length;
+  const pct=total?Math.round(done/total*100):0;
+
+  let h=`<div class="phase-hdr" style="border-color:${p.color}33"><div class="phase-hdr-top"><div class="phase-meta"><div class="phase-status-row"><span class="phase-badge" style="background:${sl.bg};color:${sl.text}">${sl.label}</span><span class="phase-timeline">${p.timeline}</span></div><div class="phase-lbl" style="color:${p.color}">${p.phase}</div><div class="phase-title">${p.title}</div></div><div class="phase-count"><div class="phase-count-num" style="color:${p.color}">${total}</div><div class="phase-count-word">tasks</div></div></div><div class="progress-wrap"><div class="progress-lbl"><span>${done}/${total}</span><span style="color:${p.color}">${pct}%</span></div><div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${p.color}"></div></div></div>${p.note?`<div class="phase-note" style="background:${p.color}0D;border-color:${p.color}33">${p.note}</div>`:''}</div>`;
+
+  p.sections.forEach((sec,si)=>{
+    const sk=`${p.id}_s${si}`;const isOpen=!collapsed[sk];
+    const dt=sec.tasks.filter((_,ti)=>doneState[taskKey(p.id,si,ti)]).length;
+    h+=`<div class="sec"><div class="sec-hdr" onclick="toggleSec('${sk}')"><span class="sec-icon" style="color:${p.color}">${sec.icon}</span><span class="sec-label">${sec.label}</span><span class="sec-count">${dt}/${sec.tasks.length}</span><span class="sec-chevron">${isOpen?'▲':'▼'}</span></div>`;
+    if(isOpen){
+      h+='<div class="sec-body">';
+      if(sec.note)h+=`<div class="sec-note">${sec.note}</div>`;
+      sec.tasks.forEach((t,ti)=>{
+        const key=taskKey(p.id,si,ti);const ck=!!doneState[key];
+        const tag=t.tag?`<span class="task-tag ${t.tag==='needs assets'?'tag-assets':'tag-hw'}">${t.tag}</span>`:'';
+        h+=`<div class="task${ck?' done':''}" onclick="toggleTask('${key}')"><div class="task-cb${ck?' checked':''}" style="${ck?`background:${p.color};border-color:${p.color}`:''}"><span class="task-cb-mark">✓</span></div><div class="task-body"><span class="task-text${ck?' struck':''}">${t.text}${tag}</span></div><div class="task-dot" style="background:${PRIORITY_COLORS[t.priority]}"></div></div>`;
+      });
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+
+  if(p.callout)h+=`<div class="callout" style="background:${p.callout.color}0D;border:1px solid ${p.callout.color}44"><div class="callout-label" style="color:${p.callout.color}">${p.callout.label}</div><div class="callout-body">${p.callout.body}</div></div>`;
+
+  document.getElementById('todo-main').innerHTML=h;
+}
+
+function renderTodo(){renderStats();renderTabs();renderPhase();}
+
+window.selectPhase=function(id){activePhase=id;renderTodo();};
+window.toggleSec=function(k){collapsed[k]=!collapsed[k];renderPhase();};
+window.toggleTask=function(k){doneState[k]=!doneState[k];saveDone(doneState);renderTodo();};
+
+renderTodo();
+</script>
+</body>
+</html>
