@@ -180,6 +180,7 @@ html {
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 16px;
   line-height: 1.75;
+  overflow-x: hidden;
 }
 body {
   background: var(--void);
@@ -982,6 +983,11 @@ p.body-text{font-size:0.95rem;color:var(--muted);line-height:1.9;margin-bottom:0
   transition:background 0.2s;
 }
 .consult-btn:hover{background:var(--ember);}
+@media(max-width:560px){
+  .consult-banner{flex-direction:column;align-items:center;text-align:center;}
+  .consult-btn{width:100%;text-align:center;}
+  .btn-primary,.btn-secondary{width:100%;text-align:center;box-sizing:border-box;}
+}
 .btn-secondary{
   font-family:'Courier New',monospace;font-size:0.68rem;
   letter-spacing:0.18em;text-transform:uppercase;
@@ -1280,8 +1286,8 @@ footer{background:var(--void);padding:2rem;border-top:1px solid rgba(var(--rust-
       </div>
       <select class="form-select" name="type">
         <option value="" disabled selected>Type of appointment</option>
-        <option>Custom Tattoo — Consultation</option>
-        <option>Custom Tattoo — Session</option>
+        <option>Tattoo — Consultation</option>
+        <option>Tattoo — Session</option>
         <option>Walk-In Flash</option>
         <option>Touch-Up</option>
       </select>
