@@ -713,7 +713,8 @@ p.body-text{font-size:0.95rem;color:var(--muted);line-height:1.9;margin-bottom:0
   line-height: 1.6;
 }
 
-/* ── Portfolio grid ───────────────────────────────── */
+/* ── Portfolio: category tiles ────────────────────── */
+.pf-tiles, .pf-tiles *, .pf-layer, .pf-layer * { box-sizing: border-box; }
 .artist-portfolio-header {
   display: flex;
   align-items: center;
@@ -731,13 +732,13 @@ p.body-text{font-size:0.95rem;color:var(--muted);line-height:1.9;margin-bottom:0
 }
 .port-view-all {
   font-family: 'Courier New', monospace;
-  font-size: 0.58rem;
+  font-size: 0.62rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--teal);
   background: none;
   border: 1px solid rgba(var(--teal-rgb, 59,172,196), 0.3);
-  padding: 0.3rem 0.8rem;
+  padding: 0.45rem 0.9rem;
   cursor: crosshair;
   transition: all 0.15s;
 }
@@ -745,165 +746,327 @@ p.body-text{font-size:0.95rem;color:var(--muted);line-height:1.9;margin-bottom:0
   background: var(--teal);
   color: var(--void);
 }
-.port-grid {
+.pf-tiles {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 3px;
 }
-@media(max-width: 600px) {
-  .port-grid { grid-template-columns: repeat(2, 1fr); }
-}
-.port-thumb {
+.pf-tile {
   position: relative;
   overflow: hidden;
   aspect-ratio: 3/4;
-  cursor: crosshair;
+  padding: 0;
+  border: 0;
   background: var(--deep);
+  color: var(--bone);
+  cursor: crosshair;
+  text-align: left;
+  font: inherit;
 }
-.port-thumb img {
+.pf-tile img {
   width: 100%; height: 100%;
   object-fit: cover;
-  object-position: center;
-  transition: transform 0.4s ease;
   display: block;
+  transition: transform 0.4s ease;
 }
-.port-thumb:hover img { transform: scale(1.06); }
-.port-thumb-overlay {
+.pf-tile:hover img, .pf-tile:focus-visible img { transform: scale(1.06); }
+.pf-tile-label {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(var(--rust-rgb),0.75) 0%, transparent 55%);
-  opacity: 0;
-  transition: opacity 0.3s;
+  inset: auto 0 0 0;
+  padding: 2.5rem 0.75rem 0.7rem;
+  background: linear-gradient(to top, rgba(7,5,4,0.92) 0%, rgba(7,5,4,0.6) 55%, transparent 100%);
   display: flex;
-  align-items: flex-end;
-  padding: 0.75rem;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
-.port-thumb:hover .port-thumb-overlay { opacity: 1; }
-.port-thumb-caption {
+.pf-tile-name {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.15;
+  color: var(--cream);
+}
+.pf-tile-count {
   font-family: 'Courier New', monospace;
-  font-size: 0.52rem;
+  font-size: 0.62rem;
   letter-spacing: 0.1em;
-  color: var(--void);
-  text-transform: uppercase;
-  line-height: 1.4;
+  color: var(--teal);
+  white-space: nowrap;
 }
-
-/* ── Portfolio Modal ──────────────────────────────── */
-.port-modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 800;
-  align-items: center;
-  justify-content: center;
-}
-.port-modal.open { display: flex; }
-.modal-overlay {
+.pf-tile::after {
+  content: '';
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.92);
+  border: 1px solid transparent;
+  transition: border-color 0.2s;
+  pointer-events: none;
 }
-.modal-panel {
-  position: relative;
-  z-index: 1;
-  width: min(700px, 92vw);
-  max-height: 92vh;
-  background: var(--deep);
-  border: 1px solid rgba(var(--rust-rgb), 0.2);
+.pf-tile:hover::after, .pf-tile:focus-visible::after { border-color: var(--rust); }
+.pf-tile:focus-visible { outline: none; }
+.pf-tile-all {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid rgba(var(--rust-rgb), 0.25);
 }
-.modal-header {
+.pf-tile-all .pf-tile-name { font-size: 1.25rem; }
+.pf-tile-all .pf-tile-count { white-space: normal; line-height: 1.6; }
+.pf-tile-all:hover { background: rgba(var(--rust-rgb), 0.12); }
+.pf-tile-all::after { display: none; }
+
+/* ── Portfolio: gallery + viewer overlays ─────────── */
+.pf-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  background: var(--void);
+  color: var(--bone);
+}
+.pf-layer[hidden] { display: none; }
+.pf-view { z-index: 1110; }
+.pf-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid rgba(var(--rust-rgb), 0.1);
+  gap: 1rem;
+  padding: max(0.9rem, env(safe-area-inset-top)) 1.25rem 0.9rem;
+  border-bottom: 1px solid rgba(var(--rust-rgb), 0.15);
   flex-shrink: 0;
 }
-.modal-artist-name {
-  font-family: Georgia, serif;
-  font-size: 1.3rem;
-  font-style: italic;
-  color: var(--bone);
-  margin: 0;
-}
-.modal-artist-handle {
-  font-family: 'Courier New', monospace;
-  font-size: 0.55rem;
-  letter-spacing: 0.15em;
-  color: var(--teal);
-  margin: 0.2rem 0 0;
-}
-.modal-close {
-  font-family: 'Courier New', monospace;
-  font-size: 0.7rem;
-  color: var(--muted);
-  background: none;
-  border: 1px solid rgba(var(--rust-rgb), 0.2);
-  padding: 0.35rem 0.7rem;
-  cursor: crosshair;
-  transition: all 0.15s;
-  letter-spacing: 0.1em;
-}
-.modal-close:hover { border-color: var(--rust); color: var(--rust); }
-.modal-track {
-  overflow: hidden;
-  flex: 1;
-  position: relative;
-}
-.modal-slide {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  padding: 1.5rem;
-  height: 100%;
-}
-.modal-slide.active { display: flex; }
-.modal-slide img {
-  max-width: 100%;
-  max-height: calc(92vh - 180px);
-  object-fit: contain;
-  display: block;
-}
-.modal-caption {
+.pf-kicker {
   font-family: 'Courier New', monospace;
   font-size: 0.58rem;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin: 0 0 0.2rem;
+}
+.pf-title {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: normal;
+  font-size: 1.3rem;
+  color: var(--cream);
+  margin: 0;
+}
+.pf-sub {
+  font-family: 'Courier New', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0.25rem 0 0;
+}
+.pf-close {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: var(--bone);
+  background: none;
+  border: 1px solid rgba(var(--rust-rgb), 0.3);
+  min-width: 2.75rem; min-height: 2.75rem;
+  cursor: crosshair;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.pf-close:hover { border-color: var(--rust); color: var(--rust); }
+.pf-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 1.25rem max(2rem, env(safe-area-inset-bottom));
+}
+.pf-filters {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--void);
+  padding: 0.9rem 0 0.6rem;
+  border-bottom: 1px solid rgba(var(--rust-rgb), 0.1);
+  margin-bottom: 1rem;
+}
+.pf-row {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 0.4rem;
+}
+.pf-row::-webkit-scrollbar { display: none; }
+@media(min-width: 900px) { .pf-row { flex-wrap: wrap; overflow: visible; } }
+.pf-row-sub {
+  margin-top: 0.2rem;
+  padding: 0.45rem 0 0.45rem 0.7rem;
+  border-left: 2px solid var(--rust);
+  align-items: center;
+}
+.pf-row-lbl {
+  font-family: 'Courier New', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-top: 0.75rem;
-  text-align: center;
+  align-self: center;
+  white-space: nowrap;
+  margin-right: 0.3rem;
 }
-.modal-nav {
+.pf-chip {
+  font-family: 'Courier New', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: var(--bone);
+  background: transparent;
+  border: 1px solid rgba(var(--bone-rgb), 0.25);
+  padding: 0.5rem 0.8rem;
+  cursor: crosshair;
+  transition: all 0.15s;
+}
+.pf-chip:hover { border-color: var(--rust); }
+.pf-chip[aria-pressed="true"] { background: var(--rust); border-color: var(--rust); color: var(--void); }
+.pf-chip .n { opacity: 0.6; margin-left: 0.45em; }
+.pf-chip-sm { font-size: 0.64rem; padding: 0.4rem 0.7rem; }
+.pf-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+  margin-top: 0.4rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.pf-clear {
+  font: inherit;
+  color: var(--teal);
+  background: none;
+  border: 0;
+  padding: 0.3rem 0;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: crosshair;
+}
+.pf-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.1rem 0.6rem;
+}
+@media(min-width: 700px) { .pf-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.6rem 1rem; } }
+.pf-card {
+  display: block;
+  align-self: start;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: crosshair;
+}
+.pf-card-img {
+  display: block;
+  position: relative;
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  background: var(--deep);
+}
+.pf-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
+.pf-card:hover .pf-card-img img, .pf-card:focus-visible .pf-card-img img { transform: scale(1.05); }
+.pf-card:focus-visible { outline: 1px solid var(--rust); outline-offset: 3px; }
+.pf-badge {
+  position: absolute;
+  top: 0.5rem; right: 0.5rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  color: var(--bone);
+  background: rgba(7,5,4,0.75);
+  padding: 0.2rem 0.45rem;
+}
+.pf-card-title {
+  display: block;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--cream);
+  margin-top: 0.55rem;
+}
+.pf-card-tags {
+  display: block;
+  font-family: 'Courier New', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-top: 0.2rem;
+  line-height: 1.5;
+}
+.pf-empty { font-family: Georgia, serif; font-style: italic; color: var(--muted); padding: 2rem 0; }
+.pf-track {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+.pf-track::-webkit-scrollbar { display: none; }
+.pf-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  min-width: 0;
+}
+.pf-slide img, .pf-slide video {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+  background: var(--deep);
+}
+.pf-nav {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 1.5rem;
-  padding: 1rem 1.5rem;
-  border-top: 1px solid rgba(var(--rust-rgb), 0.1);
+  padding: 0.8rem 1.25rem max(0.8rem, env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(var(--rust-rgb), 0.12);
   flex-shrink: 0;
 }
-.modal-prev, .modal-next {
+.pf-nav button {
   font-family: 'Courier New', monospace;
   font-size: 1rem;
   color: var(--bone);
   background: none;
-  border: 1px solid rgba(var(--rust-rgb), 0.25);
-  padding: 0.4rem 1rem;
+  border: 1px solid rgba(var(--rust-rgb), 0.3);
+  min-width: 3rem; min-height: 2.75rem;
   cursor: crosshair;
   transition: all 0.15s;
 }
-.modal-prev:hover, .modal-next:hover {
-  border-color: var(--rust);
-  color: var(--rust);
-}
-.modal-counter {
+.pf-nav button:hover:not(:disabled) { border-color: var(--rust); color: var(--rust); }
+.pf-nav button:disabled { opacity: 0.25; cursor: default; }
+.pf-counter {
   font-family: 'Courier New', monospace;
-  font-size: 0.6rem;
+  font-size: 0.68rem;
   letter-spacing: 0.2em;
   color: var(--muted);
+  min-width: 4.5rem;
+  text-align: center;
 }
+@media(prefers-reduced-motion: reduce) {
+  .pf-tile img, .pf-card-img img { transition: none; }
+}
+
 
 /* ── Remove old artists CSS ───────────────────────── */
 /* (Old .artists-duo .artists-grid .artist-card .duo-hero styles are
@@ -1185,29 +1348,10 @@ footer{background:var(--void);padding:2rem;border-top:1px solid rgba(var(--rust-
         </div>
         <div class="artist-portfolio-header">
           <span class="port-label">Portfolio</span>
-          <button class="port-view-all" data-artist="cat">View All →</button>
+          <button class="port-view-all" type="button" data-pf-open="">View All →</button>
         </div>
-        <div class="port-grid" id="port-grid-cat">
-          <div class="port-thumb" data-artist="cat" data-idx="0" title="Maneki neko realism · forearm">
-        <img src="joker_rsw_806h_806.jpg" loading="lazy" decoding="async" alt="Maneki neko realism · forearm" loading="lazy">
-        <div class="port-thumb-overlay"><span class="port-thumb-caption">Maneki neko realism · forearm</span></div>
-      </div><div class="port-thumb" data-artist="cat" data-idx="1" title="San Judas Tadeo religious sleeve · forearm">
-        <img src="flower_rsw_806h_8063.jpg" loading="lazy" decoding="async" alt="San Judas Tadeo religious sleeve · forearm" loading="lazy">
-        <div class="port-thumb-overlay"><span class="port-thumb-caption">San Judas Tadeo religious sleeve · forearm</span></div>
-      </div><div class="port-thumb" data-artist="cat" data-idx="2" title="Joker portrait realism · wrist">
-        <img src="lucky-cat_rsw_806h_1072.jpg" loading="lazy" decoding="async" alt="Joker portrait realism · wrist" loading="lazy">
-        <div class="port-thumb-overlay"><span class="port-thumb-caption">Joker portrait realism · wrist</span></div>
-      </div><div class="port-thumb" data-artist="cat" data-idx="3" title="Gon & Killua · color anime · calf">
-        <img src="playing-cards_rsw_806h_8062.jpg" loading="lazy" decoding="async" alt="Gon & Killua · color anime · calf" loading="lazy">
-        <div class="port-thumb-overlay"><span class="port-thumb-caption">Gon & Killua · color anime · calf</span></div>
-      </div><div class="port-thumb" data-artist="cat" data-idx="4" title="Sunflower color · fine line · wrist">
-        <img src="hunter-x-hunter_rsw_806h_8061.jpg" loading="lazy" decoding="async" alt="Sunflower color · fine line · wrist" loading="lazy">
-        <div class="port-thumb-overlay"><span class="port-thumb-caption">Sunflower color · fine line · wrist</span></div>
-      </div><div class="port-thumb" data-artist="cat" data-idx="5" title="Poison dart frog realism · upper arm">
-        <img src="frog_rsw_806h_8064.jpg" loading="lazy" decoding="async" alt="Poison dart frog realism · upper arm" loading="lazy">
-        <div class="port-thumb-overlay"><span class="port-thumb-caption">Poison dart frog realism · upper arm</span></div>
-      </div>
-        </div>
+        <!-- Tiles are rendered from portfolio/portfolio.js (built by tools/build-portfolio.py) -->
+        <div class="pf-tiles" id="pf-tiles"></div>
       </div>
         </div>
       </div>
@@ -1216,50 +1360,36 @@ footer{background:var(--void);padding:2rem;border-top:1px solid rgba(var(--rust-
   </div>
 </div>
 
-<!-- PORTFOLIO MODALS -->
-
-<div class="port-modal" id="modal-cat" aria-hidden="true">
-  <div class="modal-overlay"></div>
-  <div class="modal-panel">
-    <div class="modal-header">
-      <div>
-        <h3 class="modal-artist-name">Cat</h3>
-        <p class="modal-artist-handle">@paint_it_red_designs</p>
-      </div>
-      <button class="modal-close" data-artist="cat">✕</button>
+<!-- PORTFOLIO GALLERY + VIEWER -->
+<div class="pf-layer" id="pf-gallery" role="dialog" aria-modal="true" aria-labelledby="pf-gallery-title" hidden>
+  <div class="pf-head">
+    <div>
+      <p class="pf-kicker">Cat · @paint_it_red_designs</p>
+      <h3 class="pf-title" id="pf-gallery-title">Portfolio</h3>
     </div>
-    <div class="modal-track" id="modal-track-cat">
-
-      <div class="modal-slide" data-idx="0">
-          <img src="joker_rsw_806h_806.jpg" loading="lazy" decoding="async" alt="Maneki neko realism · forearm" loading="lazy">
-          <p class="modal-caption">Maneki neko realism · forearm</p>
-        </div><div class="modal-slide" data-idx="1">
-          <img src="flower_rsw_806h_8063.jpg" loading="lazy" decoding="async" alt="San Judas Tadeo religious sleeve · forearm" loading="lazy">
-          <p class="modal-caption">San Judas Tadeo religious sleeve · forearm</p>
-        </div><div class="modal-slide" data-idx="2">
-          <img src="lucky-cat_rsw_806h_1072.jpg" loading="lazy" decoding="async" alt="Joker portrait realism · wrist" loading="lazy">
-          <p class="modal-caption">Joker portrait realism · wrist</p>
-        </div><div class="modal-slide" data-idx="3">
-          <img src="playing-cards_rsw_806h_8062.jpg" loading="lazy" decoding="async" alt="Gon & Killua · color anime · calf" loading="lazy">
-          <p class="modal-caption">Gon & Killua · color anime · calf</p>
-        </div><div class="modal-slide" data-idx="4">
-          <img src="hunter-x-hunter_rsw_806h_8061.jpg" loading="lazy" decoding="async" alt="Sunflower color · fine line · wrist" loading="lazy">
-          <p class="modal-caption">Sunflower color · fine line · wrist</p>
-        </div><div class="modal-slide" data-idx="5">
-          <img src="frog_rsw_806h_8064.jpg" loading="lazy" decoding="async" alt="Poison dart frog realism · upper arm" loading="lazy">
-          <p class="modal-caption">Poison dart frog realism · upper arm</p>
-        </div>
-    </div>
-    </div>
-    <div class="modal-nav">
-      <button class="modal-prev" data-artist="cat">←</button>
-      <span class="modal-counter" id="modal-counter-cat">1 / 6</span>
-      <button class="modal-next" data-artist="cat">→</button>
-    </div>
+    <button class="pf-close" type="button" data-pf-back aria-label="Close portfolio">✕</button>
+  </div>
+  <div class="pf-scroll" id="pf-scroll">
+    <div class="pf-filters" id="pf-filters"></div>
+    <div class="pf-grid" id="pf-grid"></div>
   </div>
 </div>
 
-
+<div class="pf-layer pf-view" id="pf-viewer" role="dialog" aria-modal="true" aria-labelledby="pf-viewer-title" hidden>
+  <div class="pf-head">
+    <div>
+      <h3 class="pf-title" id="pf-viewer-title"></h3>
+      <p class="pf-sub" id="pf-viewer-tags"></p>
+    </div>
+    <button class="pf-close" type="button" data-pf-back aria-label="Back to gallery">✕</button>
+  </div>
+  <div class="pf-track" id="pf-track" tabindex="-1"></div>
+  <div class="pf-nav">
+    <button type="button" data-pf-step="-1" aria-label="Previous photo">←</button>
+    <span class="pf-counter" id="pf-counter" aria-live="polite"></span>
+    <button type="button" data-pf-step="1" aria-label="Next photo">→</button>
+  </div>
+</div>
 
 
 <!-- BOOKING -->
@@ -1961,94 +2091,203 @@ document.addEventListener('DOMContentLoaded', function() {
   setTimeout(updateDots, 200);
 });
 
-// ═══ PORTFOLIO MODALS ═══
+</script>
+<script src="portfolio/portfolio.js"></script>
+<script>
+// ═══ PORTFOLIO: tiles → filtered gallery → piece viewer ═══
 (function() {
-  const modalState = { cat: 0 };
-  // Modal counts derived from DOM (not hardcoded - stays correct as portfolio grows)
-  const catTrack  = document.getElementById('modal-track-cat');
-  const modalCounts = {
-    cat:  catTrack  ? catTrack.querySelectorAll('.modal-slide').length  : 6
-  };
+  const P = window.PORTFOLIO;
+  const tilesEl = document.getElementById('pf-tiles');
+  if (!P || !tilesEl) return;
 
-  function showSlide(artist, idx) {
-    const track = document.getElementById('modal-track-' + artist);
-    if (!track) return;
-    const slides = track.querySelectorAll('.modal-slide');
-    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
-    const counter = document.getElementById('modal-counter-' + artist);
-    if (counter) counter.textContent = (idx+1) + ' / ' + modalCounts[artist];
-    modalState[artist] = idx;
+  const gallery = document.getElementById('pf-gallery');
+  const viewer  = document.getElementById('pf-viewer');
+  const filtersEl = document.getElementById('pf-filters');
+  const gridEl  = document.getElementById('pf-grid');
+  const track   = document.getElementById('pf-track');
+  const counter = document.getElementById('pf-counter');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const cat = id => P.categories.find(c => c.id === id);
+  const piece = id => P.pieces.find(p => p.id === id);
+  const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+
+  // Filter keys: 'color', 'color/realism', 'tag:glitch'
+  function label(k) {
+    if (k.startsWith('tag:')) return cap(k.slice(4));
+    const [c, s] = k.split('/'); const C = cat(c);
+    if (!C) return cap(k);
+    const sub = s && C.s.find(x => x[0] === s);
+    return sub ? C.n + ' › ' + sub[1] : C.n;
   }
-
-  function openModal(artist, startIdx) {
-    const modal = document.getElementById('modal-' + artist);
-    if (!modal) return;
-    modal.classList.add('open');
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-    showSlide(artist, startIdx || 0);
+  function match(p, k) {
+    if (k.startsWith('tag:')) { const t = k.slice(4); return p.tags.includes(t) || p.cats.some(c => c.endsWith('/' + t)); }
+    return p.cats.some(c => c === k || (!k.includes('/') && c.startsWith(k + '/')));
   }
+  const count = k => P.pieces.filter(p => match(p, k)).length;
+  const TAGS = [...new Set(P.pieces.flatMap(p => p.tags))].sort((a, b) => count('tag:' + b) - count('tag:' + a) || a.localeCompare(b));
 
-  function closeModal(artist) {
-    const modal = document.getElementById('modal-' + artist);
-    if (!modal) return;
-    modal.classList.remove('open');
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+  let sel = new Set();
+  const shown = () => sel.size ? P.pieces.filter(p => [...sel].some(k => match(p, k))) : P.pieces;
+  const subsSel = id => [...sel].filter(k => k.startsWith(id + '/'));
+  const topOn = id => sel.has(id) || subsSel(id).length > 0;
+  function toggleTop(id) { if (topOn(id)) { sel.delete(id); subsSel(id).forEach(k => sel.delete(k)); } else sel.add(id); }
+  function toggleSub(id, s) { const k = id + '/' + s; sel.delete(id); if (sel.has(k)) { sel.delete(k); if (!subsSel(id).length) sel.add(id); } else sel.add(k); }
+  function toggleKey(k) { sel.has(k) ? sel.delete(k) : sel.add(k); }
+
+  // ── Tiles (on the page) ──
+  tilesEl.innerHTML = P.categories.map(c => {
+    const p = piece(c.cover), m = p.media[0], n = count(c.id);
+    return `<button class="pf-tile" type="button" data-pf-open="${c.id}" aria-label="${esc(c.n)}, ${plural(n, 'piece')}">
+      <img src="${m.thumb}" width="${m.w}" height="${m.h}" loading="lazy" decoding="async" alt="">
+      <span class="pf-tile-label"><span class="pf-tile-name">${esc(c.n)}</span><span class="pf-tile-count">${n}</span></span></button>`;
+  }).join('') + `<button class="pf-tile pf-tile-all" type="button" data-pf-open="">
+      <span class="pf-tile-name">View all</span><span class="pf-tile-count">${plural(P.pieces.length, 'piece')} · filter by style →</span></button>`;
+
+  // ── Gallery ──
+  function chip(attrs, pressed, text, n, sm) {
+    return `<button class="pf-chip${sm ? ' pf-chip-sm' : ''}" type="button" aria-pressed="${pressed}" ${attrs}>${esc(text)}${n != null ? `<span class="n">${n}</span>` : ''}</button>`;
   }
+  function renderFilters() {
+    const rows = [`<div class="pf-row">${chip('data-f="all"', sel.size === 0, 'All', P.pieces.length)}${
+      P.categories.map(c => chip(`data-f="top" data-id="${c.id}"`, topOn(c.id), c.n, count(c.id))).join('')}</div>`];
+    P.categories.filter(c => c.s.length && topOn(c.id)).forEach(c => rows.push(
+      `<div class="pf-row pf-row-sub"><span class="pf-row-lbl">${esc(c.n)}</span>${
+        chip(`data-f="every" data-id="${c.id}"`, sel.has(c.id), 'Everything', null, true)}${
+        c.s.map(([sid, sn]) => chip(`data-f="sub" data-id="${c.id}" data-s="${sid}"`, sel.has(c.id + '/' + sid), sn, count(c.id + '/' + sid), true)).join('')}</div>`));
+    if (TAGS.length) rows.push(`<div class="pf-row"><span class="pf-row-lbl">Also tagged</span>${
+      TAGS.map(t => chip(`data-f="key" data-id="tag:${esc(t)}"`, sel.has('tag:' + t), cap(t), count('tag:' + t), true)).join('')}</div>`);
+    const n = shown().length;
+    rows.push(`<div class="pf-meta"><span>${n} of ${plural(P.pieces.length, 'piece')}</span>${
+      sel.size ? '<button class="pf-clear" type="button" data-f="all">Clear filters</button>' : ''}</div>`);
 
-  document.addEventListener('click', function(e) {
-    // Thumb click → open modal at that index
-    const thumb = e.target.closest('.port-thumb');
-    if (thumb) {
-      openModal(thumb.dataset.artist, parseInt(thumb.dataset.idx));
-      return;
-    }
-    // View all → open modal at 0
-    const viewAll = e.target.closest('.port-view-all');
-    if (viewAll) {
-      openModal(viewAll.dataset.artist, 0);
-      return;
-    }
-    // Close button
-    const closeBtn = e.target.closest('.modal-close');
-    if (closeBtn) { closeModal(closeBtn.dataset.artist); return; }
-    // Overlay click → close
-    if (e.target.classList.contains('modal-overlay')) {
-      ['cat'].forEach(closeModal);
-      return;
-    }
-    // Nav
-    const prev = e.target.closest('.modal-prev');
-    if (prev) {
-      const a = prev.dataset.artist;
-      showSlide(a, (modalState[a] - 1 + modalCounts[a]) % modalCounts[a]);
-      return;
-    }
-    const next = e.target.closest('.modal-next');
-    if (next) {
-      const a = next.dataset.artist;
-      showSlide(a, (modalState[a] + 1) % modalCounts[a]);
-      return;
-    }
+    // keep each chip row's horizontal scroll + focused chip across re-render
+    const scrolls = [...filtersEl.querySelectorAll('.pf-row')].map(r => r.scrollLeft);
+    const a = document.activeElement, sig = a && filtersEl.contains(a) && a.dataset.f
+      ? `[data-f="${a.dataset.f}"]` + (a.dataset.id ? `[data-id="${a.dataset.id}"]` : '') + (a.dataset.s ? `[data-s="${a.dataset.s}"]` : '') : null;
+    filtersEl.innerHTML = rows.join('');
+    filtersEl.querySelectorAll('.pf-row').forEach((r, i) => { r.scrollLeft = scrolls[i] || 0; });
+    if (sig) { const el = filtersEl.querySelector(sig); if (el) el.focus({ preventScroll: true }); }
+  }
+  function renderGrid() {
+    const list = shown();
+    gridEl.innerHTML = list.length ? list.map(p => {
+      const m = p.media[0];
+      const photos = p.media.filter(x => x.type === 'photo').length, vids = p.media.length - photos;
+      const badge = p.media.length > 1 || vids ? [photos && plural(photos, 'photo'), vids && plural(vids, 'video')].filter(Boolean).join(' · ') : '';
+      const tags = p.cats.map(label).concat(p.tags.map(cap)).join(' · ');
+      return `<button class="pf-card" type="button" data-pf-piece="${p.id}">
+        <span class="pf-card-img"><img src="${m.thumb}" width="${m.w}" height="${m.h}" loading="lazy" decoding="async" alt="${esc(p.title)}">${badge ? `<span class="pf-badge">${badge}</span>` : ''}</span>
+        <span class="pf-card-title">${esc(p.title)}</span><span class="pf-card-tags">${esc(tags)}</span></button>`;
+    }).join('') : '<p class="pf-empty">Nothing tagged here yet. Clear a filter or pick another style.</p>';
+  }
+  function renderGallery() { renderFilters(); renderGrid(); }
+
+  filtersEl.addEventListener('click', e => {
+    const b = e.target.closest('[data-f]'); if (!b) return;
+    const f = b.dataset.f, id = b.dataset.id;
+    if (f === 'all') sel = new Set();
+    else if (f === 'top') toggleTop(id);
+    else if (f === 'sub') toggleSub(id, b.dataset.s);
+    else if (f === 'every') { subsSel(id).forEach(k => sel.delete(k)); sel.add(id); }
+    else if (f === 'key') toggleKey(id);
+    renderGallery();
   });
 
-  // Keyboard nav
-  document.addEventListener('keydown', function(e) {
-    const openModal = ['cat'].find(a => {
-      const m = document.getElementById('modal-' + a);
-      return m && m.classList.contains('open');
-    });
-    if (!openModal) return;
-    if (e.key === 'Escape') { closeModal(openModal); }
-    if (e.key === 'ArrowLeft') {
-      showSlide(openModal, (modalState[openModal] - 1 + modalCounts[openModal]) % modalCounts[openModal]);
+  // ── Viewer ──
+  let cur = 0;
+  function slides() { return [...track.children]; }
+  function setCurrent(i) {
+    const s = slides(); cur = Math.max(0, Math.min(i, s.length - 1));
+    counter.textContent = (cur + 1) + ' / ' + s.length;
+    viewer.querySelector('[data-pf-step="-1"]').disabled = cur === 0;
+    viewer.querySelector('[data-pf-step="1"]').disabled = cur === s.length - 1;
+    s.forEach((el, j) => { const v = el.querySelector('video'); if (!v) return; if (j === cur) v.play().catch(() => {}); else v.pause(); });
+  }
+  function step(d) {
+    const i = Math.max(0, Math.min(cur + d, slides().length - 1));
+    track.scrollTo({ left: i * track.clientWidth, behavior: reduced ? 'auto' : 'smooth' });
+  }
+  let scrollT;
+  track.addEventListener('scroll', () => {
+    clearTimeout(scrollT);
+    scrollT = setTimeout(() => setCurrent(Math.round(track.scrollLeft / track.clientWidth)), 60);
+  }, { passive: true });
+  function fillViewer(p) {
+    document.getElementById('pf-viewer-title').textContent = p.title;
+    document.getElementById('pf-viewer-tags').textContent = p.cats.map(label).concat(p.tags.map(cap)).join(' · ');
+    track.innerHTML = p.media.map((m, i) => `<div class="pf-slide">${m.type === 'video'
+      ? `<video src="${m.src}" poster="${m.thumb}" width="${m.w}" height="${m.h}" controls playsinline muted loop preload="none" aria-label="${esc(p.title)}, video"></video>`
+      : `<img src="${m.src}" width="${m.w}" height="${m.h}" ${i ? 'loading="lazy"' : ''} decoding="async" alt="${esc(p.title)}, photo ${i + 1} of ${p.media.length}">`}</div>`).join('');
+  }
+
+  // ── Layers + back button (history drives what is open) ──
+  let opener = null;
+  function sync() {
+    const s = history.state && history.state.pf;
+    const showViewer = s === 'viewer' && track.children.length > 0;
+    const showGallery = s === 'gallery' || showViewer;
+    if (!showViewer) slides().forEach(el => { const v = el.querySelector('video'); if (v) v.pause(); });
+    const wasViewer = !viewer.hidden;
+    viewer.hidden = !showViewer;
+    gallery.hidden = !showGallery;
+    document.body.style.overflow = showGallery ? 'hidden' : '';
+    if (!showGallery && opener) { opener.focus({ preventScroll: true }); opener = null; }
+    else if (wasViewer && !showViewer && showGallery) {
+      const card = gridEl.querySelector(`[data-pf-piece="${track.dataset.piece}"]`);
+      if (card) card.focus({ preventScroll: true });
     }
-    if (e.key === 'ArrowRight') {
-      showSlide(openModal, (modalState[openModal] + 1) % modalCounts[openModal]);
+  }
+  if (history.state && history.state.pf) history.replaceState(null, '');
+  window.addEventListener('popstate', sync);
+
+  function openGallery(key, from) {
+    sel = key ? new Set([key]) : new Set();
+    renderGallery();
+    opener = from || null;
+    document.getElementById('pf-scroll').scrollTop = 0;
+    history.pushState({ pf: 'gallery' }, '');
+    sync();
+    gallery.querySelector('.pf-close').focus({ preventScroll: true });
+  }
+  function openViewer(id) {
+    const p = piece(id); if (!p) return;
+    track.dataset.piece = id;
+    fillViewer(p);
+    history.pushState({ pf: 'viewer' }, '');
+    sync();
+    track.scrollLeft = 0;
+    setCurrent(0);
+    track.focus({ preventScroll: true });
+  }
+
+  document.addEventListener('click', e => {
+    const o = e.target.closest('[data-pf-open]');
+    if (o) { openGallery(o.dataset.pfOpen, o); return; }
+    const c = e.target.closest('[data-pf-piece]');
+    if (c) { openViewer(c.dataset.pfPiece); return; }
+    if (e.target.closest('[data-pf-back]')) { history.back(); return; }
+    const st = e.target.closest('[data-pf-step]');
+    if (st) step(+st.dataset.pfStep);
+  });
+
+  document.addEventListener('keydown', e => {
+    const top = !viewer.hidden ? viewer : !gallery.hidden ? gallery : null;
+    if (!top) return;
+    if (e.key === 'Escape') { e.preventDefault(); history.back(); return; }
+    if (top === viewer && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) { e.preventDefault(); step(e.key === 'ArrowLeft' ? -1 : 1); return; }
+    if (e.key === 'Tab') { // keep focus inside the open layer
+      const f = [...top.querySelectorAll('button:not(:disabled), video, [tabindex="0"]')].filter(el => el.offsetParent);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (!top.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+      else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     }
   });
-});
+})();
 </script>
 </body>
 </html>

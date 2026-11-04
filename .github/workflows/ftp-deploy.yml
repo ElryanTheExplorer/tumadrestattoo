@@ -1,14 +1,22 @@
 name: FTP Deploy
 
+# main    -> tumadrestattoo.com          (FTP_SERVER / FTP_USERNAME / FTP_PASSWORD)
+# staging -> staging.tumadrestattoo.com  (STAGING_FTP_USERNAME / STAGING_FTP_PASSWORD,
+#                                         optional STAGING_FTP_SERVER, optional variable STAGING_SERVER_DIR)
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
   push:
     branches:
       - main
+      - staging
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
 
 jobs:
-  deploy:
+  production:
+    if: github.ref_name == 'main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -25,3 +33,32 @@ jobs:
             **/.git*/**
             **/node_modules/**
             .github/**
+            media/**
+            tools/**
+
+  staging:
+    if: github.ref_name == 'staging'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Keep staging out of search results
+        run: |
+          printf 'User-agent: *\nDisallow: /\n' > robots.txt
+          sed -i 's/content="index, follow"/content="noindex, nofollow"/' index.html
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.STAGING_FTP_SERVER || secrets.FTP_SERVER }}
+          username: ${{ secrets.STAGING_FTP_USERNAME }}
+          password: ${{ secrets.STAGING_FTP_PASSWORD }}
+          server-dir: ${{ vars.STAGING_SERVER_DIR || './' }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .github/**
+            media/**
+            tools/**
